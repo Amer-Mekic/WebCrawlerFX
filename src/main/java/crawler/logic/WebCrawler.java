@@ -2,6 +2,8 @@ package main.java.crawler.logic;
 import java.io.IOException;
 import java.util.*;
 
+import main.java.crawler.util.Normalize;
+import main.java.crawler.util.UrlValidator;
 import org.jsoup.*;
 import org.jsoup.nodes.*;
 import org.jsoup.select.*;
@@ -31,7 +33,10 @@ public class WebCrawler {
         int p = 0;
         links.add(URL);
         while(!links.isEmpty() && p<maxPages){
-            String url = links.poll();
+            String nLink = links.poll();
+            String url = Normalize.normalize(nLink);
+            if(!UrlValidator.isValidURL(url))
+                continue;
             if (visited.contains(url)) {
                 System.out.println("Already visited: " + url);
                 continue;
@@ -46,12 +51,12 @@ public class WebCrawler {
                 System.out.println("Found " + newLinks.size() + " links on this page.");
                 int count = 0;
                 for (String link : newLinks) {
-                    if (count++ >= 5) break;
+                    if (count++ >= 10) break;
                     System.out.println(" → " + link);
                 }
                 int c = 0;
                 for (String link : newLinks) {
-                    if (c++ >= 5) break;
+                    if (c++ >= 10) break;
                     if (!visited.contains(link) && !links.contains(link)) {
                         links.add(link);
                     }
