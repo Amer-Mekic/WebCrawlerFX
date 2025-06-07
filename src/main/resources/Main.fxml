@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="main.java.crawler.controller.MainController"
+           prefWidth="600" prefHeight="400">
+    <children>
+        <BorderPane style="-fx-background-color: #f7f7f7;">
+            <top>
+                <Label text="Welcome to WebCrawlerFX"
+                       textFill="#792020"
+                       textAlignment="CENTER"
+                       wrapText="true"
+                       alignment="CENTER"
+                       BorderPane.alignment="CENTER">
+                    <font>
+                        <Font name="Segoe UI Bold" size="28.0"/>
+                    </font>
+                    <BorderPane.margin>
+                        <Insets top="20" bottom="10"/>
+                    </BorderPane.margin>
+                </Label>
+            </top>
+
+            <center>
+                <VBox alignment="TOP_CENTER" spacing="10">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
+
+                    <!-- URL Label and TextField -->
+                    <Label text="Enter the URL:">
+                        <font>
+                            <Font size="13.0"/>
+                        </font>
+                    </Label>
+                    <TextField fx:id="urlField"
+                               promptText="https://example.com"
+                               maxWidth="300">
+                        <font>
+                            <Font size="13.0"/>
+                        </font>
+                    </TextField>
+                    <Label text="Enter the full URL including http:// or https://"
+                           opacity="0.75">
+                        <font>
+                            <Font name="System Italic" size="12.0"/>
+                        </font>
+                    </Label>
+
+                    <!-- ChoiceBoxes Row -->
+                    <HBox spacing="20" alignment="CENTER">
+                        <VBox>
+                            <Label text="Max links to crawl per page:">
+                                <font><Font size="13.0"/></font>
+                            </Label>
+                            <ChoiceBox fx:id="maxLinksChoiceBox" prefWidth="150" disable="true"/>
+                        </VBox>
+                        <VBox>
+                            <Label text="Max crawl depth:">
+                                <font><Font size="13.0"/></font>
+                            </Label>
+                            <ChoiceBox fx:id="maxDepthChoiceBox" prefWidth="150" disable="true"/>
+                        </VBox>
+                    </HBox>
+
+                    <!-- Crawl Button -->
+                    <Button text="Crawl"
+                            style="-fx-background-color: #792020;"
+                            textFill="WHITE"
+                            prefWidth="100"
+                            onAction="#onCrawlButtonClicked">
+                        <font>
+                            <Font size="14.0"/>
+                        </font>
+                    </Button>
+                </VBox>
+            </center>
+
+
+            <bottom>
+                <Label text="Made by Amer M."
+                       BorderPane.alignment="CENTER">
+                    <BorderPane.margin>
+                        <Insets top="10" bottom="10"/>
+                    </BorderPane.margin>
+                </Label>
+            </bottom>
+        </BorderPane>
+
+        <!-- Progress Overlay (Initially Hidden) -->
+        <VBox fx:id="progressOverlay"
+              spacing="20"
+              style="-fx-background-color: #f7f7f7;"
+              alignment="CENTER"
+              visible="false">
+            <Label text="Crawling your URL..." textFill="#792020">
+                <font>
+                    <Font name="Segoe UI Bold" size="28.0"/>
+                </font>
+            </Label>
+            <ProgressBar fx:id="progressBar"
+                         prefWidth="492.0"
+                         progress="0.0"
+                         style="-fx-accent: #792020;"/>
+        </VBox>
+        <!-- TreeView Display (Initially Hidden) -->
+        <VBox spacing="10"
+              alignment="TOP_CENTER"
+              visible="false"
+              fx:id="treeViewContainer">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+            <TreeView fx:id="urlTreeView"
+                      prefHeight="300.0"
+                      prefWidth="400.0"
+                      showRoot="true" />
+        </VBox>
+    </children>
+</StackPane>
