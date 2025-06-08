@@ -2,11 +2,11 @@ package main.java.crawler.logic;
 import java.io.IOException;
 import java.util.*;
 
+import main.java.crawler.model.CrawlNode;
 import main.java.crawler.util.Normalize;
 import main.java.crawler.util.UrlValidator;
 import org.jsoup.*;
 import org.jsoup.nodes.*;
-import org.jsoup.select.*;
 
 public class WebCrawler {
     private static final int maxPages = 10;
@@ -34,51 +34,64 @@ public class WebCrawler {
         void update(double progress); // 0.0 to 1.0
     }
 
-    public Map<String, List<String>> crawl(String startUrl, int maxLinksPerPage, int maxDepth, ProgressCallback callback) {
+    public CrawlNode crawl(String startUrl, int maxLinksPerPage, int maxDepth, ProgressCallback callback) {
         visited = new HashSet<>();
         links = new LinkedList<>();
-        crawlGraph = new HashMap<>();
 
-        int pagesVisited = 0;
+        CrawlNode root = new CrawlNode(startUrl);
         links.add(startUrl);
 
+        Map<String, CrawlNode> nodeMap = new HashMap<>();
+        nodeMap.put(startUrl, root);
+
+        int pagesVisited = 0;
+
         while (!links.isEmpty() && pagesVisited < maxDepth) {
-            String nLink = links.poll();
-            String url = Normalize.normalize(nLink);
+            String currentUrl = links.poll();
+            currentUrl = Normalize.normalize(currentUrl);
 
-            if (!UrlValidator.isValidURL(url)) continue;
-            if (visited.contains(url)) continue;
+            if (!UrlValidator.isValidURL(currentUrl) || visited.contains(currentUrl)) continue;
 
-            visited.add(url);
-            System.out.println("Crawling: " + url);
+            visited.add(currentUrl);
+            System.out.println("Crawling: " + currentUrl);
 
             try {
-                Document doc = Jsoup.connect(url).get();
+                Document doc = Jsoup.connect(currentUrl).get();
                 var pageInfo = pageProcessor.process(doc);
-                System.out.println("Title: " + pageInfo.getTitle());
 
-                var newLinks = pageInfo.getLinks();
-                crawlGraph.put(url, newLinks);
+                List<String> newLinks = pageInfo.getLinks();
+                CrawlNode currentNode = nodeMap.get(currentUrl);
 
                 int count = 0;
                 for (String link : newLinks) {
                     if (count++ >= maxLinksPerPage) break;
+                    link = Normalize.normalize(link);
+
                     if (!visited.contains(link) && !links.contains(link)) {
                         links.add(link);
                     }
+
+                    if (currentNode.hasInAncestors(link)) {
+                        System.out.println("Cycle detected: skipping " + link);
+                    }
+                    // Avoid duplicate nodes for same URL
+                    if (!currentNode.hasInAncestors(link)) {
+                        CrawlNode childNode = nodeMap.getOrDefault(link, new CrawlNode(link));
+                        nodeMap.putIfAbsent(link, childNode);
+                        childNode.setParent(currentNode); // set parent
+                        currentNode.addChild(childNode);
+                    }
                 }
             } catch (IOException e) {
-                e.printStackTrace(); // or log better
+                e.printStackTrace();
             }
 
             pagesVisited++;
-
             if (callback != null) {
-                callback.update((double) pagesVisited / maxDepth); // update progress
+                callback.update((double) pagesVisited / maxDepth);
             }
         }
 
-        System.out.println("Crawling complete. Total pages visited: " + visited.size());
-        return crawlGraph;
+        return root;
     }
 }
