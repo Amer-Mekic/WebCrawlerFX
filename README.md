@@ -52,11 +52,6 @@ java --module-path "/path/to/javafx-sdk-21/lib" \
      -jar WebCrawler.jar
 ```
 
-## Download
-
-Go to the [Releases](https://github.com/your-username/your-repo/releases) page  
-and download the latest `WebCrawlerFX.jar` file.
-
 ---
 
 ## Example Usage
